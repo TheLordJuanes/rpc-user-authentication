@@ -1,0 +1,54 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div class="text-center">
+        <h1 class="display-4">RPC :: Red de Programación Competitiva</h1>
+        <a asp-page="Index">Logout</a>
+        <p id="username"></p>
+    </div>
+
+    <table class="table" border="1" style="text-align: center;">
+        <thead>
+            <tr>
+                <th>
+                    Username
+                </th>
+                <th>
+                    Last name
+                </th>
+                <th>
+                   First Name
+                </th>
+                <th>
+                    BirthDate
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <!--@foreach (var item in Model.User)
+            {-->
+                <tr>
+                    <td>
+                        Hola<!--@Html.DisplayFor(modelItem => item.Username)-->
+                    </td>
+                    <td>
+                       <!-- @Html.DisplayFor(modelItem => item.LastName)-->
+                    </td>
+                    <td>
+                       <!-- @Html.DisplayFor(modelItem => item.FirstName)-->
+                    </td>
+                    <td>
+                       <!-- @Html.DisplayFor(modelItem => item.BirthDate)-->
+                    </td>
+                </tr>
+            <!--}-->
+        </tbody>
+
+    </table>
+</body>
+</html>
