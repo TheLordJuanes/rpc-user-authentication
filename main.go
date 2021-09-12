@@ -12,6 +12,7 @@ import (
 
 var tpl *template.Template
 var logged bool
+var userLogged user
 
 type user struct {
 	Username  string `json:"username"`
@@ -22,7 +23,8 @@ type user struct {
 }
 
 type ViewData struct {
-	UsersData []user
+	UsersData  []user
+	UserLogged user
 }
 
 var users = []user{
@@ -51,7 +53,7 @@ func loggedInHandler(w http.ResponseWriter, r *http.Request) {
 		data, err := ioutil.ReadFile("database.txt")
 		if err == nil {
 			readDB(data)
-			vd := ViewData{UsersData: users}
+			vd := ViewData{UsersData: users, UserLogged: userLogged}
 			tpl.ExecuteTemplate(w, "loggedIn.html", vd)
 		} else {
 			fmt.Println("There was an error adding the new user account.")
@@ -89,6 +91,7 @@ func loginAuthHandler(w http.ResponseWriter, r *http.Request) {
 	if err == nil {
 		fmt.Println("You have successfully logged in :)")
 		logged = true
+		userLogged = signed
 		loggedInHandler(w, r)
 	} else {
 		fmt.Println(err)
@@ -218,7 +221,7 @@ func registerAuthHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	readDB(data)
-	tpl.ExecuteTemplate(w, "register.html", "Congrats, your account has been successfully created!")
+	tpl.ExecuteTemplate(w, "login.html", "Congrats, your account has been successfully created!")
 }
 
 func readDB(data []byte) {

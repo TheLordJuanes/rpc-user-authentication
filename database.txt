@@ -1,4 +1,4 @@
 Username Password Firstname Lastname Birthdate
 seyerman seyerman Juan Reyes 1995-04-01
 favellaneda favellaneda Fabio Avellaneda 1987-09-06
-pepita Pepita11223* pepa pig 2021-09-10
+lalita Lalita11223* lala kane 2021-09-24
