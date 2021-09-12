@@ -23,9 +23,11 @@
     <input type="text" id="lastname" name="lastname" required><br><br>
     <label for="birthdate">Birthate: </label>
     <input type="date" id="birthdate" name="birthdate" required><br><br>
-    <input type="submit" value="Submit">
-
+    <input type="submit" value="Save">
 </form>
+<form action="/login" method="POST">
+    <input type="submit" value="Cancel">
+  </form>
 <br><br>
   {{if .}}
   {{.}}

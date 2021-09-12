@@ -8,9 +8,11 @@
 <body>
     <div class="text-center">
         <h1 class="display-4">RPC :: Red de Programación Competitiva</h1>
-        <a asp-page="Index">Logout</a>
-        <p id="username"></p>
     </div>
+
+    <form action="/login" method="POST">
+        <input type="submit" value="Logout">
+    </form>
 
     <table class="table" border="1" style="text-align: center;">
         <thead>

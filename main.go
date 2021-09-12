@@ -1,28 +1,34 @@
 package main
 
 import (
-	"database/sql"
+	"errors"
 	"fmt"
 	"html/template"
 	"net/http"
 	"unicode"
-
-	"golang.org/x/crypto/bcrypt"
-
-	_ "github.com/go-sql-driver/mysql"
 )
 
 var tpl *template.Template
-var db *sql.DB
+
+type user struct {
+	Username  string `json:"username"`
+	Password  string `json:"password"`
+	FirstName string `json:"firstname"`
+	LastName  string `json:"lastname"`
+	Birthdate string `json:"birthdate"`
+}
+
+var users = []user{
+	{Username: "seyerman", Password: "seyerman", FirstName: "Juan", LastName: "Reyes", Birthdate: "1995-04-01"},
+	{Username: "favellaneda", Password: "favellaneda", FirstName: "Fabio", LastName: "Avellaneda", Birthdate: "1987-09-06"},
+}
 
 func main() {
-	tpl, _ = template.ParseGlob("*.html")
 	var err error
-	db, err = sql.Open("mysql", "root:password@tcp(localhost:3306)/testdb")
+	tpl, err = template.ParseGlob("*.html")
 	if err != nil {
 		panic(err.Error())
 	}
-	defer db.Close()
 	http.HandleFunc("/login", loginHandler)
 	http.HandleFunc("/loginauth", loginAuthHandler)
 	http.HandleFunc("/register", registerHandler)
@@ -44,25 +50,35 @@ func loginAuthHandler(w http.ResponseWriter, r *http.Request) {
 	password := r.FormValue("password")
 	fmt.Println("username:", username, "password:", password)
 	// retrieve password from db to compare (hash) with user supplied password's hash
-	var hash string
-	stmt := "SELECT Hash FROM bcrypt WHERE Username = ?"
-	row := db.QueryRow(stmt, username)
-	err := row.Scan(&hash)
-	fmt.Println("hash from db:", hash)
+	signed, err := getUserByUsername(username)
+	if signed.Password != password {
+		err = errors.New("wrong password")
+	}
 	if err != nil {
-		fmt.Println("error selecting Hash in db by Username")
 		tpl.ExecuteTemplate(w, "login.html", "Username and/or password are wrong!")
 		return
 	}
-	// func CompareHashAndPassword(hashedPassword, password []byte) error
-	err = bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
 	// returns nill on success
 	if err == nil {
 		fmt.Fprint(w, "You have successfully logged in :)")
 		return
 	}
-	fmt.Println("incorrect password")
-	tpl.ExecuteTemplate(w, "login.html", "check username and password")
+	fmt.Println(err)
+	tpl.ExecuteTemplate(w, "login.html", "Check username and password!")
+}
+
+func getUserByUsername(username string) (user, error) {
+	//username := c.Param("username")
+
+	// Loop through the list of albums, looking for
+	// an album whose ID value matches the parameter.
+	for _, a := range users {
+		if a.Username == username {
+			return a, nil
+		}
+	}
+	var null user
+	return null, errors.New("user not found")
 }
 
 // registerHandler serves form for registering new users
@@ -79,7 +95,6 @@ func registerAuthHandler(w http.ResponseWriter, r *http.Request) {
 		3. check if username is already exists in database
 		4. create bcrypt hash from password
 		5. insert username and password hash in database
-		(email validation will be in another video)
 	*/
 	fmt.Println("*****registerAuthHandler running*****")
 	r.ParseForm()
@@ -132,47 +147,29 @@ func registerAuthHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// check if username already exists for availability
-	stmt := "SELECT UserID FROM bcrypt WHERE username = ?"
-	row := db.QueryRow(stmt, username)
-	var uID string
-	err := row.Scan(&uID)
-	if err != sql.ErrNoRows {
-		fmt.Println("username already exists, err:", err)
-		tpl.ExecuteTemplate(w, "register.html", "username already taken")
+	_, err := getUserByUsername(username)
+	if err == nil {
+		fmt.Println("username already exists, error: ", err)
+		tpl.ExecuteTemplate(w, "register.html", "Username already taken!")
 		return
 	}
-	// create hash from password
-	var hash []byte
-	// func GenerateFromPassword(password []byte, cost int) ([]byte, error)
-	hash, err = bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-	if err != nil {
-		fmt.Println("bcrypt err:", err)
-		tpl.ExecuteTemplate(w, "register.html", "there was a problem registering account")
+	firstname := r.FormValue("firstname")
+	lastname := r.FormValue("lastname")
+	birthdate := r.FormValue("birthdate")
+	password2 := r.FormValue("password2")
+	if password != password2 {
+		fmt.Println("Passwords don't match")
+		tpl.ExecuteTemplate(w, "register.html", "Passwords don't match!")
 		return
 	}
-	fmt.Println("hash:", hash)
-	fmt.Println("string(hash):", string(hash))
-	// func (db *DB) Prepare(query string) (*Stmt, error)
-	var insertStmt *sql.Stmt
-	insertStmt, err = db.Prepare("INSERT INTO bcrypt (Username, Hash) VALUES (?, ?);")
-	if err != nil {
-		fmt.Println("error preparing statement:", err)
-		tpl.ExecuteTemplate(w, "register.html", "there was a problem registering account")
-		return
+	newUser := user{
+		Username:  username,
+		Password:  password,
+		FirstName: firstname,
+		LastName:  lastname,
+		Birthdate: birthdate,
 	}
-	defer insertStmt.Close()
-	var result sql.Result
-	//  func (s *Stmt) Exec(args ...interface{}) (Result, error)
-	result, err = insertStmt.Exec(username, hash)
-	rowsAff, _ := result.RowsAffected()
-	lastIns, _ := result.LastInsertId()
-	fmt.Println("rowsAff:", rowsAff)
-	fmt.Println("lastIns:", lastIns)
-	fmt.Println("err:", err)
-	if err != nil {
-		fmt.Println("error inserting new user")
-		tpl.ExecuteTemplate(w, "register.html", "there was a problem registering account")
-		return
-	}
-	fmt.Fprint(w, "congrats, your account has been successfully created")
+	users = append(users, newUser)
+
+	fmt.Fprint(w, "Congrats, your account has been successfully created!")
 }
