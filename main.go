@@ -21,6 +21,10 @@ type user struct {
 	Birthdate string `json:"birthdate"`
 }
 
+type ViewData struct {
+	UsersData []user
+}
+
 var users = []user{
 	{Username: "seyerman", Password: "seyerman", FirstName: "Juan", LastName: "Reyes", Birthdate: "1995-04-01"},
 	{Username: "favellaneda", Password: "favellaneda", FirstName: "Fabio", LastName: "Avellaneda", Birthdate: "1987-09-06"},
@@ -44,7 +48,15 @@ func main() {
 func loggedInHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("*****loggedInHandler running*****")
 	if logged {
-		tpl.ExecuteTemplate(w, "loggedIn.html", nil)
+		data, err := ioutil.ReadFile("database.txt")
+		if err == nil {
+			readDB(data)
+			vd := ViewData{UsersData: users}
+			tpl.ExecuteTemplate(w, "loggedIn.html", vd)
+		} else {
+			fmt.Println("There was an error adding the new user account.")
+			return
+		}
 	} else {
 		tpl.ExecuteTemplate(w, "login.html", "Not Logged In...")
 	}
@@ -205,6 +217,11 @@ func registerAuthHandler(w http.ResponseWriter, r *http.Request) {
 		tpl.ExecuteTemplate(w, "register.html", "There was an error adding the new user account.")
 		return
 	}
+	readDB(data)
+	tpl.ExecuteTemplate(w, "register.html", "Congrats, your account has been successfully created!")
+}
+
+func readDB(data []byte) {
 	dataStr := string(data)
 	parts := strings.Split(dataStr, "\n")
 	users = nil
@@ -219,7 +236,6 @@ func registerAuthHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		users = append(users, newUser)
 	}
-	tpl.ExecuteTemplate(w, "register.html", "Congrats, your account has been successfully created!")
 }
 
 func save() error {

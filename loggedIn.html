@@ -1,16 +1,18 @@
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
 </head>
+
 <body>
     <div class="text-center">
-        <h1 class="display-4">RPC :: Red de Programación Competitiva</h1>
+        <h1 style="text-align: center;">RPC :: Red de Programación Competitiva</h1>
     </div>
 
-    <form action="/login" method="POST">
+    <form action="/login" method="POST" style="text-align: right; margin-right: 200px;">
         <input type="submit" value="Logout">
     </form>
 
@@ -24,7 +26,7 @@
                     Last name
                 </th>
                 <th>
-                   First Name
+                    First Name
                 </th>
                 <th>
                     BirthDate
@@ -32,25 +34,25 @@
             </tr>
         </thead>
         <tbody>
-            <!--@foreach (var item in Model.User)
-            {-->
-                <tr>
-                    <td>
-                        Hola<!--@Html.DisplayFor(modelItem => item.Username)-->
-                    </td>
-                    <td>
-                       <!-- @Html.DisplayFor(modelItem => item.LastName)-->
-                    </td>
-                    <td>
-                       <!-- @Html.DisplayFor(modelItem => item.FirstName)-->
-                    </td>
-                    <td>
-                       <!-- @Html.DisplayFor(modelItem => item.BirthDate)-->
-                    </td>
-                </tr>
-            <!--}-->
+            {{range .UsersData}}
+            <tr>
+                <td>
+                    {{.Username}}
+                </td>
+                <td>
+                    {{.FirstName}}
+                </td>
+                <td>
+                    {{.LastName}}
+                </td>
+                <td>
+                    {{.Birthdate}}
+                </td>
+            </tr>
+            {{end}}
         </tbody>
 
     </table>
 </body>
+
 </html>
