@@ -4,7 +4,9 @@ import (
 	"errors"
 	"fmt"
 	"html/template"
+	"io/ioutil"
 	"net/http"
+	"strings"
 	"unicode"
 )
 
@@ -157,6 +159,12 @@ func registerAuthHandler(w http.ResponseWriter, r *http.Request) {
 	lastname := r.FormValue("lastname")
 	birthdate := r.FormValue("birthdate")
 	password2 := r.FormValue("password2")
+	if strings.Contains(firstname, " ") || strings.Contains(lastname, " ") || strings.Contains(username, " ") || strings.Contains(birthdate, " ") {
+		fmt.Println("One of the fields contains spaces")
+		tpl.ExecuteTemplate(w, "register.html", "One of the fields contains spaces!")
+		return
+	}
+
 	if password != password2 {
 		fmt.Println("Passwords don't match")
 		tpl.ExecuteTemplate(w, "register.html", "Passwords don't match!")
@@ -172,4 +180,14 @@ func registerAuthHandler(w http.ResponseWriter, r *http.Request) {
 	users = append(users, newUser)
 
 	fmt.Fprint(w, "Congrats, your account has been successfully created!")
+}
+
+func save() error {
+	filename := "database.txt"
+	var res string
+	for _, a := range users {
+		res += a.Username + " " + a.Password + " " + a.FirstName + " " + a.LastName + " " + a.Birthdate + "\n"
+	}
+	data := []byte(res)
+	return ioutil.WriteFile(filename, data, 0600)
 }
