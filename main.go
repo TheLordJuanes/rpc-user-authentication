@@ -10,17 +10,17 @@ import (
 	"unicode"
 )
 
+type user struct {
+	Username  string
+	Password  string
+	FirstName string
+	LastName  string
+	Birthdate string
+}
+
 var tpl *template.Template
 var logged bool
 var userLogged user
-
-type user struct {
-	Username  string `json:"username"`
-	Password  string `json:"password"`
-	FirstName string `json:"firstname"`
-	LastName  string `json:"lastname"`
-	Birthdate string `json:"birthdate"`
-}
 
 type ViewData struct {
 	UsersData  []user
@@ -100,10 +100,6 @@ func loginAuthHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func getUserByUsername(username string) (user, error) {
-	//username := c.Param("username")
-
-	// Loop through the list of albums, looking for
-	// an album whose ID value matches the parameter.
 	for _, a := range users {
 		if a.Username == username {
 			return a, nil
