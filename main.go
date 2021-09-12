@@ -11,6 +11,7 @@ import (
 )
 
 var tpl *template.Template
+var logged bool
 
 type user struct {
 	Username  string `json:"username"`
@@ -27,6 +28,7 @@ var users = []user{
 
 func main() {
 	var err error
+	logged = false
 	tpl, err = template.ParseGlob("*.html")
 	if err != nil {
 		panic(err.Error())
@@ -34,13 +36,24 @@ func main() {
 	http.HandleFunc("/login", loginHandler)
 	http.HandleFunc("/loginauth", loginAuthHandler)
 	http.HandleFunc("/register", registerHandler)
+	http.HandleFunc("/loggedIn", loggedInHandler)
 	http.HandleFunc("/registerauth", registerAuthHandler)
 	http.ListenAndServe("localhost:8080", nil)
+}
+
+func loggedInHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("*****loggedInHandler running*****")
+	if logged {
+		tpl.ExecuteTemplate(w, "loggedIn.html", nil)
+	} else {
+		tpl.ExecuteTemplate(w, "login.html", "Not Logged In...")
+	}
 }
 
 // loginHandler serves form for users to login with
 func loginHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("*****loginHandler running*****")
+	logged = false
 	tpl.ExecuteTemplate(w, "login.html", nil)
 }
 
@@ -62,11 +75,13 @@ func loginAuthHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	// returns nill on success
 	if err == nil {
-		fmt.Fprint(w, "You have successfully logged in :)")
-		return
+		fmt.Println("You have successfully logged in :)")
+		logged = true
+		loggedInHandler(w, r)
+	} else {
+		fmt.Println(err)
+		tpl.ExecuteTemplate(w, "login.html", "Check username and password!")
 	}
-	fmt.Println(err)
-	tpl.ExecuteTemplate(w, "login.html", "Check username and password!")
 }
 
 func getUserByUsername(username string) (user, error) {
