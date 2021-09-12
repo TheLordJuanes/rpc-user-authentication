@@ -178,13 +178,39 @@ func registerAuthHandler(w http.ResponseWriter, r *http.Request) {
 		Birthdate: birthdate,
 	}
 	users = append(users, newUser)
-
-	fmt.Fprint(w, "Congrats, your account has been successfully created!")
+	err = save()
+	if err != nil {
+		fmt.Println("There was an error adding the new user account.")
+		tpl.ExecuteTemplate(w, "register.html", "There was an error adding the new user account.")
+		return
+	}
+	data, err := ioutil.ReadFile("database.txt")
+	if err != nil {
+		fmt.Println("There was an error adding the new user account.")
+		tpl.ExecuteTemplate(w, "register.html", "There was an error adding the new user account.")
+		return
+	}
+	dataStr := string(data)
+	parts := strings.Split(dataStr, "\n")
+	users = nil
+	for i := 1; i < len(parts)-1; i++ {
+		parts2 := strings.Split(parts[i], " ")
+		newUser := user{
+			Username:  parts2[0],
+			Password:  parts2[1],
+			FirstName: parts2[2],
+			LastName:  parts2[3],
+			Birthdate: parts2[4],
+		}
+		users = append(users, newUser)
+	}
+	tpl.ExecuteTemplate(w, "register.html", "Congrats, your account has been successfully created!")
 }
 
 func save() error {
 	filename := "database.txt"
 	var res string
+	res = "Username Password Firstname Lastname Birthdate\n"
 	for _, a := range users {
 		res += a.Username + " " + a.Password + " " + a.FirstName + " " + a.LastName + " " + a.Birthdate + "\n"
 	}
