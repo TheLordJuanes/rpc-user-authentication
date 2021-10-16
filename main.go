@@ -6,13 +6,17 @@ import (
 	"html/template"
 	"io/ioutil"
 	"net/http"
+	"net/mail"
 	"strings"
 	"unicode"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 type user struct {
-	Username  string
+	Email     string
 	Password  string
+	Nickname  string
 	FirstName string
 	LastName  string
 	Birthdate string
@@ -28,8 +32,8 @@ type ViewData struct {
 }
 
 var users = []user{
-	{Username: "seyerman", Password: "seyerman", FirstName: "Juan", LastName: "Reyes", Birthdate: "1995-04-01"},
-	{Username: "favellaneda", Password: "favellaneda", FirstName: "Fabio", LastName: "Avellaneda", Birthdate: "1987-09-06"},
+	{Email: "juan.reyes@icesi.edu.co", Password: "$2a$10$NFvHxcYS2nNHFVRzrmkurOS8IYg07ORm4.ZPGBnP3dIfzWFSHcEK2", Nickname: "seyerman", FirstName: "Juan", LastName: "Reyes", Birthdate: "1995-04-01"},                //pwdSeyerman.1
+	{Email: "fabio.avellaneda@icesi.edu.co", Password: "$2a$10$5mCaZJfXCqrlyQKGJ0EmZ.OuiQEEwfXH18PVva2Hy1v.ryMP.rJKi", Nickname: "favellaneda", FirstName: "Fabio", LastName: "Avellaneda", Birthdate: "1987-09-06"}, //pwd: Favellaneda.1
 }
 
 func main() {
@@ -75,33 +79,41 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 func loginAuthHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("*****loginAuthHandler running*****")
 	r.ParseForm()
-	username := r.FormValue("username")
+	email := r.FormValue("email")
 	password := r.FormValue("password")
-	fmt.Println("username:", username, "password:", password)
+	fmt.Println("email:", email, "password:", password)
 	// retrieve password from db to compare (hash) with user supplied password's hash
-	signed, err := getUserByUsername(username)
-	if signed.Password != password {
-		err = errors.New("wrong password")
-	}
+	signed, err := getUserByEmail(email)
 	if err != nil {
-		tpl.ExecuteTemplate(w, "login.html", "Username and/or password are wrong!")
+		tpl.ExecuteTemplate(w, "login.html", "Email not registered!")
 		return
 	}
-	// returns nill on success
+	err = bcrypt.CompareHashAndPassword([]byte(signed.Password), []byte(password))
 	if err == nil {
-		fmt.Println("You have successfully logged in :)")
+		fmt.Fprint(w, "You have successfully logged in :)")
 		logged = true
 		userLogged = signed
 		loggedInHandler(w, r)
 	} else {
-		fmt.Println(err)
-		tpl.ExecuteTemplate(w, "login.html", "Check username and password!")
+		//err = errors.New("Wrong password.")
+		//fmt.Println(err)
+		tpl.ExecuteTemplate(w, "login.html", "Wrong password!")
+		return
 	}
 }
 
-func getUserByUsername(username string) (user, error) {
+func getUserByEmail(email string) (user, error) {
 	for _, a := range users {
-		if a.Username == username {
+		if a.Email == email {
+			return a, nil
+		}
+	}
+	var null user
+	return null, errors.New("user not found")
+}
+func getUserByNickname(nick string) (user, error) {
+	for _, a := range users {
+		if a.Nickname == nick {
 			return a, nil
 		}
 	}
@@ -118,18 +130,18 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 // registerAuthHandler creates new user in database
 func registerAuthHandler(w http.ResponseWriter, r *http.Request) {
 	/*
-		1. check username criteria
+		1. check nickname criteria
 		2. check password criteria
-		3. check if username is already exists in database
+		3. check if nickname is already exists in database
 		4. create bcrypt hash from password
-		5. insert username and password hash in database
+		5. insert nickname and password hash in database
 	*/
 	fmt.Println("*****registerAuthHandler running*****")
 	r.ParseForm()
-	username := r.FormValue("username")
+	nickname := r.FormValue("nickname")
 	// check username for only alphaNumeric characters
 	var nameAlphaNumeric = true
-	for _, char := range username {
+	for _, char := range nickname {
 		// func IsLetter(r rune) bool, func IsNumber(r rune) bool
 		// if !unicode.IsLetter(char) && !unicode.IsNumber(char) {
 		if !unicode.IsLetter(char) && !unicode.IsNumber(char) {
@@ -138,7 +150,7 @@ func registerAuthHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	// check username pswdLength
 	var nameLength bool
-	if 5 <= len(username) && len(username) <= 50 {
+	if 5 <= len(nickname) && len(nickname) <= 50 {
 		nameLength = true
 	}
 	// check password criteria
@@ -166,7 +178,7 @@ func registerAuthHandler(w http.ResponseWriter, r *http.Request) {
 			pswdNoSpaces = false
 		}
 	}
-	if 11 < len(password) && len(password) < 60 {
+	if 5 < len(password) && len(password) < 60 {
 		pswdLength = true
 	}
 	fmt.Println("pswdLowercase:", pswdLowercase, "\npswdUppercase:", pswdUppercase, "\npswdNumber:", pswdNumber, "\npswdSpecial:", pswdSpecial, "\npswdLength:", pswdLength, "\npswdNoSpaces:", pswdNoSpaces, "\nnameAlphaNumeric:", nameAlphaNumeric, "\nnameLength:", nameLength)
@@ -174,31 +186,46 @@ func registerAuthHandler(w http.ResponseWriter, r *http.Request) {
 		tpl.ExecuteTemplate(w, "register.html", "please check username and password criteria")
 		return
 	}
-	// check if username already exists for availability
-	_, err := getUserByUsername(username)
+	// check if nickname already exists for availability
+	_, err := getUserByNickname(nickname)
 	if err == nil {
-		fmt.Println("username already exists, error: ", err)
-		tpl.ExecuteTemplate(w, "register.html", "Username already taken!")
+		fmt.Println("nickname already exists, error: ", err)
+		tpl.ExecuteTemplate(w, "register.html", "Nickname already taken!")
 		return
 	}
-	firstname := r.FormValue("firstname")
-	lastname := r.FormValue("lastname")
-	birthdate := r.FormValue("birthdate")
 	password2 := r.FormValue("password2")
-	if strings.Contains(firstname, " ") || strings.Contains(lastname, " ") || strings.Contains(username, " ") || strings.Contains(birthdate, " ") {
-		fmt.Println("One of the fields contains spaces")
-		tpl.ExecuteTemplate(w, "register.html", "One of the fields contains spaces!")
-		return
-	}
-
 	if password != password2 {
 		fmt.Println("Passwords don't match")
 		tpl.ExecuteTemplate(w, "register.html", "Passwords don't match!")
 		return
 	}
+	var hash []byte
+	hash, err = bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		fmt.Println("bcrypt err:", err)
+		tpl.ExecuteTemplate(w, "register.html", "There was a problem registering account.")
+		return
+	}
+
+	firstname := r.FormValue("firstname")
+	lastname := r.FormValue("lastname")
+	birthdate := r.FormValue("birthdate")
+	if strings.Contains(firstname, " ") || strings.Contains(lastname, " ") || strings.Contains(nickname, " ") || strings.Contains(birthdate, " ") {
+		fmt.Println("One of the fields contains spaces")
+		tpl.ExecuteTemplate(w, "register.html", "One of the fields contains spaces!")
+		return
+	}
+	email := r.FormValue("email")
+	_, err = mail.ParseAddress(email)
+	if err != nil {
+		fmt.Println("email err:", err) //TODO
+		tpl.ExecuteTemplate(w, "register.html", "There was a problem registering account. Invalid email address.")
+		return
+	}
 	newUser := user{
-		Username:  username,
-		Password:  password,
+		Email:     email,
+		Password:  string(hash),
+		Nickname:  nickname,
 		FirstName: firstname,
 		LastName:  lastname,
 		Birthdate: birthdate,
@@ -227,7 +254,7 @@ func readDB(data []byte) {
 	for i := 1; i < len(parts)-1; i++ {
 		parts2 := strings.Split(parts[i], " ")
 		newUser := user{
-			Username:  parts2[0],
+			Nickname:  parts2[0],
 			Password:  parts2[1],
 			FirstName: parts2[2],
 			LastName:  parts2[3],
@@ -240,9 +267,9 @@ func readDB(data []byte) {
 func save() error {
 	filename := "database.txt"
 	var res string
-	res = "Username Password Firstname Lastname Birthdate\n"
+	res = "Email Password Nickname Firstname Lastname Birthdate\n"
 	for _, a := range users {
-		res += a.Username + " " + a.Password + " " + a.FirstName + " " + a.LastName + " " + a.Birthdate + "\n"
+		res += a.Email + " " + a.Password + " " + a.Nickname + " " + a.FirstName + " " + a.LastName + " " + a.Birthdate + "\n"
 	}
 	data := []byte(res)
 	return ioutil.WriteFile(filename, data, 0600)

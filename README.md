@@ -4,7 +4,7 @@
 
 This Golang Web Application allows managing the users' authentication of the Competitive Programming Network (RPC).
 
-Note: Visiting http://localhost:8080/login should present you the Login page when running the app.
+Note: Visiting <http://localhost:8080/login> should present you the Login page when running the app.
 
 ## Documentation 📃
 
@@ -19,5 +19,5 @@ Check the UML Class Diagram design [here](docs/ClassDiagram.pdf)
 
 ## Authors 🖊️
 
-[jose-2001](https://github.com/jose-2001)<br />
+[jose-2001](https://github.com/jose-2001)\
 [TheLordJuanes](https://github.com/TheLordJuanes)

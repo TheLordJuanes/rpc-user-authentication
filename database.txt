@@ -1,4 +1,4 @@
-Username Password Firstname Lastname Birthdate
-seyerman seyerman Juan Reyes 1995-04-01
-favellaneda favellaneda Fabio Avellaneda 1987-09-06
-lalita Lalita11223* lala kane 2021-09-24
+Email Password Nickname Firstname Lastname Birthdate
+juan.reyes@icesi.edu.co $2a$10$NFvHxcYS2nNHFVRzrmkurOS8IYg07ORm4.ZPGBnP3dIfzWFSHcEK2 seyerman Juan Reyes 1995-04-01
+fabio.avellaneda@icesi.edu.co $2a$10$5mCaZJfXCqrlyQKGJ0EmZ.OuiQEEwfXH18PVva2Hy1v.ryMP.rJKi favellaneda Fabio Avellaneda 1987-09-06
+alguien@ejemplo.com $2a$10$z2ZO9MxPt3rqVR/qXbz4deGYs0sEYLxS3xyyexRky4zwB62Sy20Ou alguien1 alienigena tommy 2021-10-04
