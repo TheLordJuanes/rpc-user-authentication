@@ -20,4 +20,5 @@ Check the UML Class Diagram design [here](docs/ClassDiagram.pdf)
 ## Authors 🖊️
 
 [jose-2001](https://github.com/jose-2001)\
-[TheLordJuanes](https://github.com/TheLordJuanes)
+[TheLordJuanes](https://github.com/TheLordJuanes)\
+[Juan-dev123](https://github.com/Juan-dev123)
