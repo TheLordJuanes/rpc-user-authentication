@@ -1,4 +1,4 @@
 Email Password Nickname Firstname Lastname Birthdate
-juan.reyes@icesi.edu.co $2a$10$NFvHxcYS2nNHFVRzrmkurOS8IYg07ORm4.ZPGBnP3dIfzWFSHcEK2 seyerman Juan Reyes 1995-04-01
-fabio.avellaneda@icesi.edu.co $2a$10$5mCaZJfXCqrlyQKGJ0EmZ.OuiQEEwfXH18PVva2Hy1v.ryMP.rJKi favellaneda Fabio Avellaneda 1987-09-06
-correo@ejemplo.com $2a$10$rw5HBZmKC18d6FktIN9pt.T9bToqmW01ADX0WxwJgmCOXNkmfTDFW correo Correito Bob 2021-10-04
+juan.reyes@icesi.edu.co $2a$10$NFvHxcYS2nNHFVRzrmkurOS8IYg07ORm4.ZPGBnP3dIfzWFSHcEK2 seyerman Juan Reyes 1995-04-01 false
+fabio.avellaneda@icesi.edu.co $2a$10$5mCaZJfXCqrlyQKGJ0EmZ.OuiQEEwfXH18PVva2Hy1v.ryMP.rJKi favellaneda Fabio Avellaneda 1987-09-06 false
+trabajosjuan2@gmail.com $2a$10$nqJZmbgfLYtFe0LJe6ksaOC8yOx.1uKOWXY7eZb8p7rg.taR2VyXO juanpa Juan Ramos 2011-10-17 true

@@ -58,7 +58,7 @@
 
   <div class="form-group">
     <label for="birthdate">Birthdate: </label>
-    <input type="date" id="birthdate" name="birthdate" class="form-control" min="" max="1930-01-01" required><br><br>
+    <input type="date" id="birthdate" name="birthdate" class="form-control" min="" max="" required><br><br>
   </div>
 
   <script>
@@ -80,10 +80,10 @@
 
   <input type="submit" class="btn btn-primary" value="Save">
   <a class="btn btn-primary" href="/login" role="button">Cancel</a>
-</form>
-<br><br>
+  <br><br>
   {{if .}}
   {{.}}
   {{end}}
+</form>
 </body>
 </html>
