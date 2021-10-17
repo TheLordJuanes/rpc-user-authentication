@@ -43,6 +43,12 @@ func main() {
 	if err != nil {
 		panic(err.Error())
 	}
+	data, err := ioutil.ReadFile("database.txt")
+	if err == nil {
+		readDB(data)
+	} else {
+		fmt.Println("There was an error loading the data base")
+	}
 	http.HandleFunc("/login", loginHandler)
 	http.HandleFunc("/loginauth", loginAuthHandler)
 	http.HandleFunc("/register", registerHandler)
@@ -90,13 +96,10 @@ func loginAuthHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	err = bcrypt.CompareHashAndPassword([]byte(signed.Password), []byte(password))
 	if err == nil {
-		fmt.Fprint(w, "You have successfully logged in :)")
 		logged = true
 		userLogged = signed
 		loggedInHandler(w, r)
 	} else {
-		//err = errors.New("Wrong password.")
-		//fmt.Println(err)
 		tpl.ExecuteTemplate(w, "login.html", "Wrong password!")
 		return
 	}
@@ -218,7 +221,7 @@ func registerAuthHandler(w http.ResponseWriter, r *http.Request) {
 	email := r.FormValue("email")
 	_, err = mail.ParseAddress(email)
 	if err != nil {
-		fmt.Println("email err:", err) //TODO
+		fmt.Println("email err:", err)
 		tpl.ExecuteTemplate(w, "register.html", "There was a problem registering account. Invalid email address.")
 		return
 	}
@@ -254,11 +257,12 @@ func readDB(data []byte) {
 	for i := 1; i < len(parts)-1; i++ {
 		parts2 := strings.Split(parts[i], " ")
 		newUser := user{
-			Nickname:  parts2[0],
+			Email:     parts2[0],
 			Password:  parts2[1],
-			FirstName: parts2[2],
-			LastName:  parts2[3],
-			Birthdate: parts2[4],
+			Nickname:  parts2[2],
+			FirstName: parts2[3],
+			LastName:  parts2[4],
+			Birthdate: parts2[5],
 		}
 		users = append(users, newUser)
 	}

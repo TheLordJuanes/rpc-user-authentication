@@ -4,30 +4,33 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
     <title>Document</title>
 </head>
 
 <body>
-    <div class="text-center">
-        <h1 style="text-align: center;">RPC :: Red de Programación Competitiva</h1>
+    <div class="py-1 text-center">
+        <a class="navbar-brand" href="#"><img src="https://pbs.twimg.com/profile_images/493847405670850561/qslkfHlq_400x400.jpeg" alt="RPC_Logo" width="100" height="100"/></a>
+        <h1 class="display-2">RPC :: Red de Programación Competitiva</h1>
+        <a class="btn btn-primary" href="/login" role="button">Logout</a>
+        <p class="p-2">{{.UserLogged.Nickname}}</p>
     </div>
 
-    <form action="/login" method="POST" style="text-align: right; margin-right: 200px;">
-        <p id="username">{{.UserLogged.Username}}</p>
-        <input type="submit" value="Logout">
-    </form>
-
-    <table class="table" border="1" style="text-align: center;">
+    <table class="table table-hover table-striped text-center">
         <thead>
             <tr>
                 <th>
-                    Username
+                    Email
                 </th>
                 <th>
-                    Last name
+                    Nickname
                 </th>
                 <th>
-                    First Name
+                    First name
+                </th>
+                <th>
+                    Last Name
                 </th>
                 <th>
                     BirthDate
@@ -38,7 +41,10 @@
             {{range .UsersData}}
             <tr>
                 <td>
-                    {{.Username}}
+                    {{.Email}}
+                </td>
+                <td>
+                    {{.Nickname}}
                 </td>
                 <td>
                     {{.FirstName}}
