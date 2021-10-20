@@ -80,7 +80,6 @@ func main() {
 }
 
 func activateHandler(w http.ResponseWriter, r *http.Request) {
-
 	id := r.URL.String()
 	parts := strings.Split(id, "/")
 	id = parts[2]
@@ -97,7 +96,6 @@ func activateHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	tpl.ExecuteTemplate(w, "login.html", "Something went wrong")
-	return
 }
 
 func loggedInHandler(w http.ResponseWriter, r *http.Request) {
@@ -137,7 +135,7 @@ func loginAuthHandler(w http.ResponseWriter, r *http.Request) {
 		tpl.ExecuteTemplate(w, "login.html", "Email not registered!")
 		return
 	}
-	if signed.Verified == false {
+	if !signed.Verified {
 		tpl.ExecuteTemplate(w, "login.html", "Email not verified. Please go to your email and active your account")
 		return
 	}
@@ -292,7 +290,7 @@ func registerAuthHandler(w http.ResponseWriter, r *http.Request) {
 		Verified:  false,
 	}
 	users = append(users, newUser)
-	id, err := bcrypt.GenerateFromPassword([]byte(email), bcrypt.DefaultCost)
+	id, _ := bcrypt.GenerateFromPassword([]byte(email), bcrypt.DefaultCost)
 	sendEmailTo(email, string(id), nickname)
 	err = save()
 	if err != nil {
